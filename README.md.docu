@@ -34,6 +34,7 @@ MarkdownExpander::Expander.new(
 ## Loops
 
 ```ruby
+:example:
 require "markdown_expander/expander"
 
 template = <<-TEMPLATE
@@ -46,4 +47,5 @@ MarkdownExpander::Expander.new(template).render(
   stuff: [ {title: "First!"}, {title: "Second!"} ]
 )
 #=> "# First!\n# Second!\n"
+:end:
 ```
