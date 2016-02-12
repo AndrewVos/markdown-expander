@@ -14,4 +14,3 @@ require "docu/rake/task"
 Docu::Rake::Task.new do |task|
   task.file = "README.md.docu"
 end
-

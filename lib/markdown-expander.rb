@@ -1,4 +1,4 @@
-require "markdown_expander/version"
+require "version"
 
 module MarkdownExpander
   class Expander

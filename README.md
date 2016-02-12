@@ -21,7 +21,7 @@ Or install it yourself as:
 ## Expressions
 
 ```ruby
-require "markdown_expander/expander"
+require "markdown-expander"
 
 MarkdownExpander::Expander.new(
   "# Title: {{thing.title}}"
@@ -34,7 +34,7 @@ MarkdownExpander::Expander.new(
 ## Loops
 
 ```ruby
-require "markdown_expander/expander"
+require "markdown-expander"
 
 template = <<-TEMPLATE
 {{thing in stuff}}
