@@ -1,6 +1,17 @@
 # markdown-expander
 
-Adds some new syntax to markdown
+A preprocessor for markdown that adds simple logic.
+
+## Why would you do this?????
+
+This was written to be used on anmo.io, where users can create web pages with
+markdown, but also need to have some simple templating language.
+
+Because users are going to be inputting content, I can't use any templating
+language that allows them to execute ruby code.
+
+Liquid seemed far too complex and heavyweight for what I want and also didn't
+work well when mixed with markdown.
 
 ## Installation
 
