@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'markdown/expander/version'
+require 'markdown_expander/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "markdown-expander"
-  spec.version       = Markdown::Expander::VERSION
+  spec.version       = MarkdownExpander::VERSION
   spec.authors       = ["Andrew Vos"]
   spec.email         = ["andrew.vos@gmail.com"]
 
