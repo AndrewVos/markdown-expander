@@ -21,14 +21,19 @@ module MarkdownExpander
           node = new_node
         elsif line =~ LOOP_END_MATCH
           node = node.parent
-        elsif line =~ EXPRESSION_MATCH
-          before_match = $`
-          after_match = $'
-          node.children << Node.new(node, before_match)
-          node.children << Node.new(node, Expression.new($1))
-          node.children << Node.new(node, after_match)
         else
-          node.children << Node.new(node, line)
+          loop do
+            if line =~ EXPRESSION_MATCH
+              before_match = $`
+              after_match = $'
+              node.children << Node.new(node, before_match)
+              node.children << Node.new(node, Expression.new($1))
+              line = after_match
+            else
+              node.children << Node.new(node, line)
+              break
+            end
+          end
         end
       end
 

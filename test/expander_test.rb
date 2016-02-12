@@ -61,6 +61,13 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     assert_equal expected_result, result
   end
 
+  def test_handles_multiple_expressions_per_line
+    example = "[{{ page.title }}]({{ page.path }})"
+    scope = {page: {title: "title", path: "/some/path"}}
+    result = MarkdownExpander::Expander.new(example).render(scope)
+    assert_equal "[title](/some/path)", result
+  end
+
   def test_renders_multiple_levels_of_loops
     example = <<-EXAMPLE
 # A header
