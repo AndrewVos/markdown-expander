@@ -3,8 +3,9 @@ require "version"
 module MarkdownExpander
   class Expander
     LOOP_START_MATCH = /{{\s*([a-zA-Z_]*)\s+in\s+([a-zA-Z_.]*)\s*}}/
-    LOOP_END_MATCH = /{{\s*end\s*}}/
+    END_MATCH = /{{\s*end\s*}}/
     EXPRESSION_MATCH = /{{\s*([a-zA-Z_.]+)\s*}}/
+    IF_START_MATCH = /{{\s*if\s*([a-zA-Z_.]*)\s*(==|!=)\s*"(.*)"}}/
 
     def initialize template
       @template = template
@@ -19,8 +20,12 @@ module MarkdownExpander
           new_node = Node.new(node, LoopStart.new($1, $2))
           node.children << new_node
           node = new_node
-        elsif line =~ LOOP_END_MATCH
+        elsif line =~ END_MATCH
           node = node.parent
+        elsif line =~ IF_START_MATCH
+          new_node = Node.new(node, IfStart.new($1, $2, $3))
+          node.children << new_node
+          node = new_node
         else
           loop do
             if line =~ EXPRESSION_MATCH
@@ -54,6 +59,20 @@ module MarkdownExpander
           scope.each do |item|
             lines << evaluate_nodes(child, {name => item})
           end
+        elsif child.value.class == IfStart
+          parts = child.value.expression.split(".")
+          value = scope
+          parts.each do |part|
+            value = value[part.to_sym]
+          end
+          expression_satisfied =
+            (child.value.operator == "==" && value.to_s == child.value.value) ||
+            (child.value.operator == "!=" && value.to_s != child.value.value)
+          if expression_satisfied
+            scope.each do |item|
+              lines << evaluate_nodes(child, scope)
+            end
+          end
         else
           lines << child.value
         end
@@ -77,6 +96,17 @@ module MarkdownExpander
       def initialize name, looper
         @name = name
         @looper = looper
+      end
+    end
+
+    class IfStart
+      attr_accessor :expression
+      attr_accessor :operator
+      attr_accessor :value
+      def initialize expression, operator, value
+        @expression = expression
+        @operator = operator
+        @value = value
       end
     end
 

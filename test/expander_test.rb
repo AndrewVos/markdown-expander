@@ -100,4 +100,46 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     result = MarkdownExpander::Expander.new(example).render(scope)
     assert_equal expected_result, result
   end
+
+  def test_evaluates_positive_condition
+    example = <<-EXAMPLE
+# Header
+
+{{page in pages}}
+  {{if page.title == "Title 1"}}
+## {{page.title}}
+  {{end}}
+{{end}}
+    EXAMPLE
+
+    expected_result = <<-RESULT
+# Header
+
+## Title 1
+    RESULT
+
+    result = MarkdownExpander::Expander.new(example).render(scope)
+    assert_equal expected_result, result
+  end
+
+  def test_evaluates_negative_condition
+    example = <<-EXAMPLE
+# Header
+
+{{page in pages}}
+  {{if page.title != "Title 1"}}
+## {{page.title}}
+  {{end}}
+{{end}}
+    EXAMPLE
+
+    expected_result = <<-RESULT
+# Header
+
+## Title 2
+    RESULT
+
+    result = MarkdownExpander::Expander.new(example).render(scope)
+    assert_equal expected_result, result
+  end
 end
