@@ -32,6 +32,7 @@ Or install it yourself as:
 ## Expressions
 
 ```ruby
+:example:
 require "markdown-expander"
 
 MarkdownExpander::Expander.new(
@@ -40,6 +41,7 @@ MarkdownExpander::Expander.new(
   thing: {title: "Hello"}
 )
 #=> "# Title: Hello"
+:end:
 ```
 
 ## Loops
@@ -58,5 +60,26 @@ MarkdownExpander::Expander.new(template).render(
   stuff: [ {title: "First!"}, {title: "Second!"} ]
 )
 #=> "# First!\n# Second!\n"
+:end:
+```
+
+## Logic
+
+```ruby
+:example:
+require "markdown-expander"
+
+template = <<-TEMPLATE
+{{animal in animals}}
+  {{if animal.name == "cats"}}
+# {{animal.name}} are the best!!!!!
+  {{end}}
+{{end}}
+TEMPLATE
+
+MarkdownExpander::Expander.new(template).render(
+  animals: [ {name: "dogs"}, {name: "cats"} ]
+)
+#=> "# cats are the best!!!!!\n"
 :end:
 ```

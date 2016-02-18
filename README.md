@@ -58,3 +58,22 @@ MarkdownExpander::Expander.new(template).render(
 )
 #=> "# First!\n# Second!\n"
 ```
+
+## Logic
+
+```ruby
+require "markdown-expander"
+
+template = <<-TEMPLATE
+{{animal in animals}}
+  {{if animal.name == "cats"}}
+# {{animal.name}} are the best!!!!!
+  {{end}}
+{{end}}
+TEMPLATE
+
+MarkdownExpander::Expander.new(template).render(
+  animals: [ {name: "dogs"}, {name: "cats"} ]
+)
+#=> "# cats are the best!!!!!\n"
+```
