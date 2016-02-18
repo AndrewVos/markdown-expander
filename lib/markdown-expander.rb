@@ -20,12 +20,12 @@ module MarkdownExpander
           new_node = Node.new(node, LoopStart.new($1, $2))
           node.children << new_node
           node = new_node
-        elsif line =~ END_MATCH
-          node = node.parent
         elsif line =~ IF_START_MATCH
           new_node = Node.new(node, IfStart.new($1, $2, $3))
           node.children << new_node
           node = new_node
+        elsif line =~ END_MATCH
+          node = node.parent
         else
           loop do
             if line =~ EXPRESSION_MATCH
@@ -56,26 +56,26 @@ module MarkdownExpander
     def evaluate_nodes root, scope
       lines = []
       root.children.each_with_index do |child, index|
-        if child.value.class == Expression
-          lines << drill_down_to_value(scope, child.value.expression)
-        elsif child.value.class == LoopStart
-          name = child.value.name.to_sym
-          scope = drill_down_to_value(scope, child.value.looper)
+        if child.element.class == Expression
+          lines << drill_down_to_value(scope, child.element.expression)
+        elsif child.element.class == LoopStart
+          name = child.element.name.to_sym
+          scope = drill_down_to_value(scope, child.element.expression)
           scope.each do |item|
             lines << evaluate_nodes(child, {name => item})
           end
-        elsif child.value.class == IfStart
-          value = drill_down_to_value(scope, child.value.expression)
+        elsif child.element.class == IfStart
+          value = drill_down_to_value(scope, child.element.expression)
           expression_satisfied =
-            (child.value.operator == "==" && value.to_s == child.value.value) ||
-            (child.value.operator == "!=" && value.to_s != child.value.value)
+            (child.element.operator == "==" && value.to_s == child.element.value) ||
+            (child.element.operator == "!=" && value.to_s != child.element.value)
           if expression_satisfied
             scope.each do |item|
               lines << evaluate_nodes(child, scope)
             end
           end
         else
-          lines << child.value
+          lines << child.element
         end
       end
       lines.join("")
@@ -84,19 +84,19 @@ module MarkdownExpander
     class Node
       attr_accessor :parent
       attr_accessor :children
-      attr_accessor :value
-      def initialize parent, value
+      attr_accessor :element
+      def initialize parent, element
         @parent = parent
-        @value = value
+        @element = element
         @children = []
       end
     end
 
     class LoopStart
-      attr_accessor :name, :looper
-      def initialize name, looper
+      attr_accessor :name, :expression
+      def initialize name, expression
         @name = name
-        @looper = looper
+        @expression = expression
       end
     end
 
