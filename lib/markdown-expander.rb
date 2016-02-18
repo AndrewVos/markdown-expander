@@ -45,26 +45,27 @@ module MarkdownExpander
       evaluate_nodes(root, options)
     end
 
+    def drill_down_to_value scope, expression
+      expression_parts = expression.split(".").map(&:to_sym)
+      expression_parts.each do |part|
+        scope = scope[part]
+      end
+      scope
+    end
+
     def evaluate_nodes root, scope
       lines = []
       root.children.each_with_index do |child, index|
         if child.value.class == Expression
-          lines << child.value.evaluate(scope)
+          lines << drill_down_to_value(scope, child.value.expression)
         elsif child.value.class == LoopStart
           name = child.value.name.to_sym
-          parts = child.value.looper.split(".")
-          parts.each do |part|
-            scope = scope[part.to_sym]
-          end
+          scope = drill_down_to_value(scope, child.value.looper)
           scope.each do |item|
             lines << evaluate_nodes(child, {name => item})
           end
         elsif child.value.class == IfStart
-          parts = child.value.expression.split(".")
-          value = scope
-          parts.each do |part|
-            value = value[part.to_sym]
-          end
+          value = drill_down_to_value(scope, child.value.expression)
           expression_satisfied =
             (child.value.operator == "==" && value.to_s == child.value.value) ||
             (child.value.operator == "!=" && value.to_s != child.value.value)
@@ -111,16 +112,9 @@ module MarkdownExpander
     end
 
     class Expression
-      def initialize value
-        @value = value
-      end
-      def evaluate scope
-        parts = @value.split(".")
-        current_scope = scope
-        parts.each do |part|
-          current_scope = current_scope[part.to_sym]
-        end
-        current_scope
+      attr_accessor :expression
+      def initialize expression
+        @expression = expression
       end
     end
   end
