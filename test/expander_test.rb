@@ -104,18 +104,14 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
   def test_evaluates_positive_condition
     example = <<-EXAMPLE
 # Header
-
-{{page in pages}}
-  {{if page.title == "Title 1"}}
+{{if page.title == "My Page"}}
 ## {{page.title}}
-  {{end}}
 {{end}}
     EXAMPLE
 
     expected_result = <<-RESULT
 # Header
-
-## Title 1
+## My Page
     RESULT
 
     result = MarkdownExpander::Expander.new(example).render(scope)
@@ -125,18 +121,14 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
   def test_evaluates_negative_condition
     example = <<-EXAMPLE
 # Header
-
-{{page in pages}}
-  {{if page.title != "Title 1"}}
+{{if page.title != "Something else"}}
 ## {{page.title}}
-  {{end}}
 {{end}}
     EXAMPLE
 
     expected_result = <<-RESULT
 # Header
-
-## Title 2
+## My Page
     RESULT
 
     result = MarkdownExpander::Expander.new(example).render(scope)

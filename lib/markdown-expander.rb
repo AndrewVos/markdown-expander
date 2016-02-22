@@ -11,7 +11,7 @@ module MarkdownExpander
       @template = template
     end
 
-    def render options
+    def render scope
       root = Node.new(nil, nil)
       node = root
 
@@ -42,7 +42,7 @@ module MarkdownExpander
         end
       end
 
-      evaluate_nodes(root, options)
+      evaluate_nodes(root, scope)
     end
 
     def drill_down_to_value scope, expression
@@ -70,9 +70,7 @@ module MarkdownExpander
             (child.element.operator == "==" && value.to_s == child.element.value) ||
             (child.element.operator == "!=" && value.to_s != child.element.value)
           if expression_satisfied
-            scope.each do |item|
-              lines << evaluate_nodes(child, scope)
-            end
+            lines << evaluate_nodes(child, scope)
           end
         else
           lines << child.element
