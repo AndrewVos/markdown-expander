@@ -38,7 +38,7 @@ MarkdownExpander::Expander.new(
   "# Title: {{thing.title}}"
 ).render(
   thing: {title: "Hello"}
-).body
+)
 #=> "# Title: Hello"
 ```
 
@@ -55,7 +55,7 @@ TEMPLATE
 
 MarkdownExpander::Expander.new(template).render(
   stuff: [ {title: "First!"}, {title: "Second!"} ]
-).body
+)
 #=> "# First!\n# Second!\n"
 ```
 
@@ -74,6 +74,6 @@ TEMPLATE
 
 MarkdownExpander::Expander.new(template).render(
   animals: [ {name: "dogs"}, {name: "cats"} ]
-).body
+)
 #=> "# cats are the best!!!!!\n"
 ```

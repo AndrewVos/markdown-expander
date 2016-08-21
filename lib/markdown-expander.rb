@@ -44,23 +44,35 @@ module MarkdownExpander
         current_line += 1
       end
 
-      errors = []
-      if node != root
-        if node.element.class == IfStart
-          errors << "LINE #{node.line_number}: if statement has no end"
-        elsif node.element.class == LoopStart
-          errors << "LINE #{node.line_number}: loop has no end"
-        end
+      parse_error = if node != root
+                      if node.element.class == IfStart
+                        MarkdownExpandError.new(node.line_number, "if statement has no end")
+                      elsif node.element.class == LoopStart
+                        MarkdownExpandError.new(node.line_number, "loop has no end")
+                      end
+                    end
+
+      if parse_error.nil? == false
+        raise parse_error
       end
 
-      if errors.any?
-        RenderResult.new(nil, errors)
-      else
-        begin
-          RenderResult.new(evaluate_nodes(root, scope), [])
-        rescue ExpressionDrillDownError => e
-          RenderResult.new(nil, ["LINE #{e.node.line_number}: expression '#{e.expression}' could not be evaluated"])
-        end
+      begin
+        evaluate_nodes(root, scope)
+      rescue ExpressionDrillDownError => e
+        raise MarkdownExpandError.new(
+          e.node.line_number,
+          "expression '#{e.expression}' could not be evaluated",
+        )
+      end
+    end
+
+    class MarkdownExpandError < StandardError
+      attr_reader :line_number
+      attr_reader :message
+
+      def initialize line_number, message
+        @line_number = line_number
+        @message = message
       end
     end
 
@@ -109,15 +121,6 @@ module MarkdownExpander
         end
       end
       lines.join("")
-    end
-
-    class RenderResult
-      attr_reader :body
-      attr_reader :errors
-      def initialize body, errors
-        @body = body
-        @errors = errors
-      end
     end
 
     class Node
