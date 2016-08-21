@@ -137,20 +137,20 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
 
   def test_if_statements_must_end
     example = "{{if x == \"1\"}}"
-    expected = "if statement has no end"
-    assert_includes(render(example, {}).errors, expected)
+    expected = "LINE 1: if statement has no end"
+    assert_equal(render(example, {}).errors.first, expected)
   end
 
   def test_loops_must_end
     example = "#heading\n{{page in pages}}"
-    expected = "loop has no end"
-    assert_includes(render(example, {}).errors, expected)
+    expected = "LINE 1: loop has no end"
+    assert_equal(render(example, {}).errors.first, expected)
   end
 
   def test_values_must_be_evaluatable
     example = "{{something.that.doesnt.work}}"
-    expected = "expression 'something.that.doesnt.work' could not be evaluated"
-    assert_includes(render(example, {}).errors, expected)
+    expected = "LINE 1: expression 'something.that.doesnt.work' could not be evaluated"
+    assert_equal(render(example, {}).errors.first, expected)
   end
 
   def render content, scope
