@@ -41,6 +41,7 @@ module MarkdownExpander
             end
           end
         end
+        current_line += 1
       end
 
       errors = []
