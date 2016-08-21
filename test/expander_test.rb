@@ -38,7 +38,7 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     RESULT
 
     result = MarkdownExpander::Expander.new(example).render(scope)
-    assert_equal expected_result, result
+    assert_equal expected_result, result.body
   end
 
   def test_renders_loops
@@ -58,14 +58,14 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     RESULT
 
     result = MarkdownExpander::Expander.new(example).render(scope)
-    assert_equal expected_result, result
+    assert_equal expected_result, result.body
   end
 
   def test_handles_multiple_expressions_per_line
     example = "[{{ page.title }}]({{ page.path }})"
     scope = {page: {title: "title", path: "/some/path"}}
     result = MarkdownExpander::Expander.new(example).render(scope)
-    assert_equal "[title](/some/path)", result
+    assert_equal "[title](/some/path)", result.body
   end
 
   def test_renders_multiple_levels_of_loops
@@ -98,7 +98,7 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     RESULT
 
     result = MarkdownExpander::Expander.new(example).render(scope)
-    assert_equal expected_result, result
+    assert_equal expected_result, result.body
   end
 
   def test_evaluates_positive_condition
@@ -115,7 +115,7 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     RESULT
 
     result = MarkdownExpander::Expander.new(example).render(scope)
-    assert_equal expected_result, result
+    assert_equal expected_result, result.body
   end
 
   def test_evaluates_negative_condition
@@ -132,6 +132,28 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     RESULT
 
     result = MarkdownExpander::Expander.new(example).render(scope)
-    assert_equal expected_result, result
+    assert_equal expected_result, result.body
+  end
+
+  def test_if_statements_must_end
+    example = "{{if x == \"1\"}}"
+    expected = "if statement has no end"
+    assert_includes(render(example, {}).errors, expected)
+  end
+
+  def test_loops_must_end
+    example = "#heading\n{{page in pages}}"
+    expected = "loop has no end"
+    assert_includes(render(example, {}).errors, expected)
+  end
+
+  def test_values_must_be_evaluatable
+    example = "{{something.that.doesnt.work}}"
+    expected = "expression 'something.that.doesnt.work' could not be evaluated"
+    assert_includes(render(example, {}).errors, expected)
+  end
+
+  def render content, scope
+    MarkdownExpander::Expander.new(content).render(scope)
   end
 end

@@ -42,13 +42,41 @@ module MarkdownExpander
         end
       end
 
-      evaluate_nodes(root, scope)
+      errors = []
+      if node != root
+        if node.element.class == IfStart
+          errors << "if statement has no end"
+        elsif node.element.class == LoopStart
+          errors << "loop has no end"
+        end
+      end
+
+      if errors.any?
+        RenderResult.new(nil, errors)
+      else
+        begin
+          RenderResult.new(evaluate_nodes(root, scope), [])
+        rescue ExpressionDrillDownError => e
+          RenderResult.new(nil, ["expression '#{e.expression}' could not be evaluated"])
+        end
+      end
+    end
+
+    class ExpressionDrillDownError < StandardError
+      attr_reader :expression
+      def initialize expression
+        @expression = expression
+      end
     end
 
     def drill_down_to_value scope, expression
       expression_parts = expression.split(".").map(&:to_sym)
       expression_parts.each do |part|
-        scope = scope[part]
+        begin
+          scope = scope[part]
+        rescue NoMethodError
+          raise ExpressionDrillDownError.new(expression)
+        end
       end
       scope
     end
@@ -77,6 +105,15 @@ module MarkdownExpander
         end
       end
       lines.join("")
+    end
+
+    class RenderResult
+      attr_reader :body
+      attr_reader :errors
+      def initialize body, errors
+        @body = body
+        @errors = errors
+      end
     end
 
     class Node
