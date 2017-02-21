@@ -24,6 +24,11 @@ class MarkdownExpander::ExpanderTest < Minitest::Test
     }
   end
 
+  def test_renders_nothing
+    result = MarkdownExpander::Expander.new(nil).render({})
+    assert_nil result
+  end
+
   def test_renders_expressions
     example = <<-EXAMPLE
 # A header

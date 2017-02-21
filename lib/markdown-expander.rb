@@ -12,6 +12,8 @@ module MarkdownExpander
     end
 
     def render scope
+      return nil if @template == nil
+
       root = Node.new(nil, nil, 1)
       node = root
       current_line = 1
